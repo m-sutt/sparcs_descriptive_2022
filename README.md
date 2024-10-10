@@ -16,4 +16,4 @@ This project explores a subset of the SPARCS (Statewide Planning and Research Co
 4. Age Group Distribution
    - Skews towards older patients in the 50-69 and 70 or older range
 6. Type of admission
-  - Majority of the cases were through emergency admissions, which is to be expected
+   - Majority of the cases were through emergency admissions, which is to be expected

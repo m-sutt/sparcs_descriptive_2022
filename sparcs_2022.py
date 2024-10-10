@@ -27,9 +27,6 @@ df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replac
 df_len = len(df)
 
 
-## remove commas from total_charges and total_costs
-df.total_charges = df.total_charges.apply(lambda x : x.replace(',', ''))
-df.total_costs = df.total_costs.apply(lambda x : x.replace(',', ''))
 
 # Step 2: so much maths -- descriptive statistics and categorical variables
 ## descriptive statistics for Length of Stay (LOS), Total Charges, and Total Costs
@@ -38,8 +35,12 @@ df.total_costs = df.total_costs.apply(lambda x : x.replace(',', ''))
 print("\nDescriptive Stats for Length of Stay")
 print(df['length_of_stay'].describe())
 
-print("\nDescriptive Stats for Total Charges")
+
+print(df['total_charges'].isna().sum())
+df = df.dropna(subset=['total_charges'])
+print("\nDescriptive Stats for Total Charges") ## encountering a NaN situation, when doing dropna everything is zero.
 print(df['total_charges'].describe())
+
 
 print("\nDescriptive Stats for Total Costs")
 print(df['total_costs'].describe())
@@ -84,3 +85,21 @@ plt.ylabel('Frequency')
 plt.savefig('barplot_type_of_admission.png')
 plt.show()
 
+
+## Histogram for Length of Stay
+plt.hist(df['length_of_stay'].dropna(), bins=20, edgecolor='black')
+plt.title('Distribution of Length of Stay')
+plt.xlabel('Length of Stay')
+plt.ylabel('Frequency')
+plt.savefig('LOS_histogram.png')
+plt.show()
+
+
+## Boxplot for Total Charges
+sns.boxplot(x='total_charges', data=df) #something is not quite right
+plt.title('Boxplot for Total Charges')
+plt.savefig('boxplot_total_charges.png')
+plt.show()
+
+
+# Summary of Findings: please see README.md

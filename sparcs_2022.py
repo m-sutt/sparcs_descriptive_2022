@@ -96,7 +96,7 @@ plt.show()
 
 
 ## Boxplot for Total Charges
-sns.boxplot(x='total_charges', data=df) #something is not quite right
+sns.boxplot(data=df, x='total_charges') #something is not quite right
 plt.title('Boxplot for Total Charges')
 plt.savefig('boxplot_total_charges.png')
 plt.show()

@@ -10,40 +10,43 @@ df = pd.read_csv('https://health.data.ny.gov/resource/5dtw-tffi.csv')
 print(df.columns)
 
 ## display the first few rows to verify
-df.head()
+#df.head().  // this was not that great
+# much better
+print(df.head())
+
+## remove all white space, lower case, replace space with underscore
+df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(','').str.replace(')','').str.replace('-','_')
 
 # step 2: cleaning data
 ## change default to not display exponential notation but float
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
-##  # Convert 'length_of_stay' to numeric, forcing errors to NaN
-df['length_of_stay'] = pd.to_numeric(df['length_of_stay'], errors='coerce')
-df['total_charges'] = pd.to_numeric(df['total_charges'], errors='coerce')
-df['total_costs'] = pd.to_numeric(df['total_costs'], errors='coerce')
+# Convert 'length_of_stay', 'total_charges', and 'total_costs' to numeric, and getting rid of commas
+df['length_of_stay'] = pd.to_numeric(df['length_of_stay'].str.replace('+', ''), errors='coerce')
+df['total_charges'] = pd.to_numeric(df['total_charges'].str.replace(',', ''), errors='coerce') #fix
+df['total_costs'] = pd.to_numeric(df['total_costs'].str.replace(',', ''), errors='coerce') #fix
 
 
-## remove all white space, lower case, replace space with underscore
-df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(','').str.replace(')','').str.replace('-','_')
-df_len = len(df)
+# Verify if conversion was successful
+print(df[['length_of_stay', 'total_charges', 'total_costs']].head())
 
 
 
-# Step 2: so much maths -- descriptive statistics and categorical variables
-## descriptive statistics for Length of Stay (LOS), Total Charges, and Total Costs
-## added the "\n" for aesthetics
-
-print("\nDescriptive Stats for Length of Stay")
+# Step 3: Descriptive statistics for Length of Stay (LOS), Total Charges, and Total Costs
+## length of stay
+print("\nDescriptive Stats for Length of Stay") ##fix?
 print(df['length_of_stay'].describe())
 
+## total charges
+# Remove commas and convert 'total_charges' to numeric, forcing errors to NaN
 
-print(df['total_charges'].isna().sum())
-df = df.dropna(subset=['total_charges'])
-print("\nDescriptive Stats for Total Charges") ## encountering a NaN situation, when doing dropna everything is zero.
+print("\nDescriptive Stats for Total Charges") ##fix?
 print(df['total_charges'].describe())
 
-
-print("\nDescriptive Stats for Total Costs")
+#total costs
+print("\nDescriptive Stats for Total Costs") ##fix?
 print(df['total_costs'].describe())
+
 
 ## count distribution for Age Group, Gender, and Type of Admission
 print("\nAge Group Distribution")
@@ -102,4 +105,25 @@ plt.savefig('boxplot_total_charges.png')
 plt.show()
 
 
+
+# Cap outliers at the 95th percentile
+cap = df['total_charges'].quantile(0.95)
+df['capped_total_charges'] = np.where(df['total_charges'] > cap, cap, df['total_charges'])
+
+# Boxplot for Capped Total Charges
+plt.figure(figsize=(8, 4))
+sns.boxplot(data=df, x='capped_total_charges')
+plt.title('Boxplot for Capped Total Charges')
+plt.savefig('boxplot_capped_total_charges.png')
+plt.show()
+
+# Log transformation (add 1 to avoid log(0) issues)
+df['log_total_charges'] = np.log1p(df['total_charges'])
+
+# Boxplot for Log-transformed Total Charges
+plt.figure(figsize=(8, 4))
+sns.boxplot(data=df, x='log_total_charges')
+plt.title('Boxplot for Log-transformed Total Charges')
+plt.savefig('boxplot_log_total_charges.png')
+plt.show()
 # Summary of Findings: please see README.md
